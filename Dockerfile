@@ -1,62 +1,17 @@
-FROM dunglas/frankenphp:1.13.4-php8.4.27-alpine AS application_builder
+# Publisher v1.1.3, upstream 088eaa3232f5d266e1e002c663797cdd2d8c77bb, linux/amd64.
+# No RUN, dependency install, build-time secret, or source compilation.
+FROM beromir/servas@sha256:33cb7cfc0944b25d04b57c299a1d3b9ca7cc666236d237af24232c4a1c909519
 WORKDIR /app
-
-COPY . ./
-
-RUN install-php-extensions \
-    @composer
-
-RUN composer install --optimize-autoloader --no-dev --no-plugins --no-scripts && \
-    composer dump-autoload --no-dev --no-plugins --classmap-authoritative
-
-
-FROM node:24.22-alpine AS asset_builder
-WORKDIR /app
-
-COPY ./package.json ./
-COPY ./package-lock.json ./
-COPY ./.npmrc ./
-COPY ./vite.config.js ./
-COPY ./resources ./resources
-
-RUN npm install && \
-    npm run build
-
-
-FROM dunglas/frankenphp:1.13.4-php8.4.27-alpine
-WORKDIR /app
-
-ENV SERVER_NAME=:80
-
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-
-RUN install-php-extensions \
-	pdo_mysql \
-	mysqli \
-	opcache \
-	bcmath \
-    && apk add --no-cache \
-    mariadb-client \
-    sqlite
-
-COPY . ./
-
-COPY --from=application_builder /app/vendor ./vendor
-COPY --from=application_builder /app/bootstrap/cache ./bootstrap/cache
-
-COPY --from=asset_builder /app/public/build ./public/build
-
-RUN rm -rf ./docker
-
-COPY ./Caddyfile /etc/caddy/Caddyfile
-COPY docker/config/custom-php.ini /usr/local/etc/php/conf.d/zzz-custom-php.ini
-COPY docker/config/custom-php-fpm.conf /usr/local/etc/php-fpm.d/zzz-custom-php-fpm.conf
-
-RUN mkdir -p /var/cache/php/opcache && \
-    chmod 700 /var/cache/php/opcache
-
-RUN mkdir -p /app/database/sqlite
-
-COPY ./docker-entrypoint.sh /
-
-ENTRYPOINT ["/docker-entrypoint.sh"]
+COPY app/Helpers/PermissionHelper.php app/Helpers/WebpageData.php /app/app/Helpers/
+COPY app/Http/Controllers/LinkController.php app/Http/Controllers/GroupController.php app/Http/Controllers/TagController.php app/Http/Controllers/PublicLinkController.php /app/app/Http/Controllers/
+COPY app/Http/Controllers/ApiControllers/LinkController.php /app/app/Http/Controllers/ApiControllers/
+COPY app/Services/BulkEditingService.php /app/app/Services/
+COPY config/app.php /app/config/app.php
+COPY vibenest/bootstrap.php vibenest/entrypoint.sh /opt/vibenest/
+COPY vibenest/Caddyfile /etc/caddy/Caddyfile
+COPY vibenest/php.ini /usr/local/etc/php/conf.d/zzzz-vibenest.ini
+COPY LICENSE /app/LICENSE
+ENV APP_ENV=production APP_DEBUG=false DB_CONNECTION=sqlite DB_DATABASE=/app/database/sqlite/database.sqlite DB_FOREIGN_KEYS=true SERVAS_ENABLE_REGISTRATION=false SERVAS_FETCH_LINK_TITLES=false SESSION_SECURE_COOKIE=true SESSION_DRIVER=database CACHE_DRIVER=file QUEUE_CONNECTION=sync GOMAXPROCS=1
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 CMD curl -fsS http://127.0.0.1:3000/login >/dev/null || exit 1
+ENTRYPOINT ["/bin/sh", "/opt/vibenest/entrypoint.sh"]

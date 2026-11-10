@@ -1,5 +1,13 @@
 # Servas
 
+> **VibeNest guided profile: NOT_READY (local static review only).**
+> The root Dockerfile is a pinned COPY-only private profile. It requires a native
+> persistent mount at `/app/database/sqlite` and refuses startup without it.
+> Follow the [guided preparation contract](docs/VIBENEST_GUIDED.md); this is not
+> an unattended deploy button. The original upstream Dockerfile is preserved at
+> `vibenest/upstream/Dockerfile`; the upstream installation instructions below
+> describe that original profile. No Free-tier or persistence acceptance is claimed.
+
 A self-hosted bookmark management tool.  
 Servas is based on Laravel and Inertia.js and uses Tailwind CSS and Svelte for the frontend.
 

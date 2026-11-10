@@ -1,6 +1,8 @@
-# VibeNest private profile (local review candidate)
+# VibeNest guided private profile (local review candidate)
 
 **NOT_READY. This profile has not been built or run. No deploy badge is published.**
+The [guided preparation contract](VIBENEST_GUIDED.md) is a static proposal for
+the existing dashboard workflow. It has not been exercised in production.
 The current VibeNest Render adapter rejects the required `disk` field with
 `render_persistent_disk_unsupported`. Keep that declaration: this application
 must not start with ephemeral SQLite storage. A supported, reviewed native
@@ -8,8 +10,9 @@ pre-launch storage path is required before publishing or testing this profile.
 
 ## Source and container
 
-The upstream Dockerfile, SQLite/MariaDB examples and GPL-3.0 LICENSE remain intact.
-`vibenest/Dockerfile` is an additive COPY-only wrapper around publisher v1.1.3,
+The original upstream Dockerfile is preserved byte-for-byte at
+`vibenest/upstream/Dockerfile`; SQLite/MariaDB examples and GPL-3.0 LICENSE remain intact.
+The root `Dockerfile` and `vibenest/Dockerfile` are identical COPY-only wrappers around publisher v1.1.3,
 linux/amd64 digest
 `sha256:33cb7cfc0944b25d04b57c299a1d3b9ca7cc666236d237af24232c4a1c909519`,
 associated with upstream `088eaa3232f5d266e1e002c663797cdd2d8c77bb`.
@@ -20,7 +23,7 @@ an explicitly invoked PHP file, not a new autoloaded class.
 
 The root Blueprint describes exactly one Docker web service. VibeNest's adapter
 uses port 3000 for this Docker contract; the wrapper therefore listens on 3000 and
-checks `/login` on that port. The unchanged upstream profile still listens on 80.
+checks `/login` on that port. The preserved upstream profile still listens on 80.
 One FrankenPHP thread, no worker mode, no PHP-FPM process, Caddy admin disabled,
 PHP limit 96 MB and opcache 32 MB are starting bounds, **not measured usage**.
 Caddy's inherited admin-metrics healthcheck is replaced with a local login probe.
