@@ -57,6 +57,7 @@ class PublicLinkController extends Controller
         $groupId = $request->validated('groupId');
 
         $group = Group::find($groupId);
+        abort_unless(PermissionHelper::userIsOwnerOfModal($group), 403);
 
         $publicLink = PublicLink::make();
 

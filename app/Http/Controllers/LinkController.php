@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\PermissionHelper;
 use App\Helpers\WebpageData;
 use App\Http\Requests\StoreLinkRequest;
 use App\Http\Requests\UpdateLinkRequest;
@@ -58,10 +59,13 @@ class LinkController extends Controller
     {
         $validated = $request->validated();
 
+        PermissionHelper::requireOwnedModalIds($validated['groups'] ?? [], Group::class);
+        PermissionHelper::requireOwnedModalIds($validated['tags'] ?? [], Tag::class);
+
         $link = Link::make();
 
         $link->link = $validated['link'];
-        $link->title = $validated['title'];
+        $link->title = $validated['title'] ?? null;
         $link->user_id = Auth::id();
 
         if (empty($link->title)) {
@@ -70,13 +74,13 @@ class LinkController extends Controller
 
         $link->save();
 
-        $groupIds = $validated['groups'];
+        $groupIds = $validated['groups'] ?? [];
 
         $link->groups()->sync($groupIds);
 
         $tags = [];
 
-        foreach ($validated['tags'] as $tag) {
+        foreach ($validated['tags'] ?? [] as $tag) {
             $tags[] = Tag::filterByCurrentUser()->find($tag);
         }
 
@@ -127,8 +131,11 @@ class LinkController extends Controller
     {
         $validated = $request->validated();
 
+        PermissionHelper::requireOwnedModalIds($validated['groups'] ?? [], Group::class);
+        PermissionHelper::requireOwnedModalIds($validated['tags'] ?? [], Tag::class);
+
         $link->link = $validated['link'];
-        $link->title = $validated['title'];
+        $link->title = $validated['title'] ?? null;
 
         if (empty($link->title)) {
             $link->title = WebpageData::getWebPageTitle($link->link);
@@ -136,13 +143,13 @@ class LinkController extends Controller
 
         $link->save();
 
-        $groupIds = $validated['groups'];
+        $groupIds = $validated['groups'] ?? [];
 
         $link->groups()->sync($groupIds);
 
         $tags = [];
 
-        foreach ($validated['tags'] as $tag) {
+        foreach ($validated['tags'] ?? [] as $tag) {
             $tags[] = Tag::filterByCurrentUser()->find($tag);
         }
 
@@ -156,6 +163,8 @@ class LinkController extends Controller
      */
     public function destroy(Link $link)
     {
+        abort_unless(PermissionHelper::userIsOwnerOfModal($link), 403);
+
         $link->groups()->detach();
 
         $link->delete();

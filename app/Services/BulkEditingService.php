@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Helpers\PermissionHelper;
 use App\Models\Group;
+use App\Models\Link;
 use App\Services\Models\GroupService;
 use App\Services\Models\LinkService;
 use Illuminate\Support\Facades\Auth;
@@ -19,6 +20,10 @@ class BulkEditingService
         if (empty($links)) {
             return;
         }
+
+        PermissionHelper::requireOwnedModalIds($links, Link::class);
+        PermissionHelper::requireOwnedModalIds($groups, Group::class);
+        PermissionHelper::requireOwnedModalIds($tags, Tag::class);
 
         $linkService = app(LinkService::class);
 

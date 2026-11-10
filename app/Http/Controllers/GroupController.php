@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\PermissionHelper;
 use App\Http\Requests\StoreGroupRequest;
 use App\Http\Requests\UpdateGroupRequest;
 use App\Models\Group;
@@ -31,6 +32,12 @@ class GroupController extends Controller
     public function store(StoreGroupRequest $request)
     {
         $validated = $request->validated();
+
+        PermissionHelper::requireOwnedModalIds(
+            isset($validated['parentGroupId']) ? [$validated['parentGroupId']] : [], Group::class);
+        foreach (['orTags', 'andTags', 'notTags'] as $key) {
+            PermissionHelper::requireOwnedModalIds($validated[$key] ?? [], Tag::class);
+        }
 
         $group = Group::make();
 
@@ -108,6 +115,12 @@ class GroupController extends Controller
     {
         $validated = $request->validated();
 
+        PermissionHelper::requireOwnedModalIds(
+            isset($validated['parentGroupId']) ? [$validated['parentGroupId']] : [], Group::class);
+        foreach (['orTags', 'andTags', 'notTags'] as $key) {
+            PermissionHelper::requireOwnedModalIds($validated[$key] ?? [], Tag::class);
+        }
+
         $group->title = $validated['title'];
 
         // The parent group cannot be itself.
@@ -131,6 +144,8 @@ class GroupController extends Controller
      */
     public function destroy(Group $group)
     {
+        abort_unless(PermissionHelper::userIsOwnerOfModal($group), 403);
+
         /** @var PublicLink $publicLink */
         if ($publicLink = $group->publicLink) {
             $publicLink->delete();

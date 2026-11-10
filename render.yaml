@@ -1,0 +1,34 @@
+# Local review candidate. A required disk deliberately remains explicit.
+# Current VibeNest adapter blocks this field: render_persistent_disk_unsupported.
+# Do not remove the disk declaration to obtain a deployable-but-ephemeral plan.
+services:
+  - type: web
+    name: servas
+    runtime: docker
+    dockerfilePath: ./vibenest/Dockerfile
+    healthCheckPath: /login
+    disk:
+      name: servas-sqlite
+      mountPath: /app/database/sqlite
+      sizeGB: 1
+    envVars:
+      - key: PORT
+        value: "3000"
+      - key: APP_URL
+        sync: false
+      - key: APP_KEY
+        sync: false
+      - key: SERVAS_BOOTSTRAP_NAME
+        sync: false
+      - key: SERVAS_BOOTSTRAP_EMAIL
+        sync: false
+      - key: SERVAS_BOOTSTRAP_PASSWORD
+        sync: false
+      - key: DB_CONNECTION
+        value: sqlite
+      - key: DB_DATABASE
+        value: /app/database/sqlite/database.sqlite
+      - key: SERVAS_ENABLE_REGISTRATION
+        value: "false"
+      - key: SERVAS_FETCH_LINK_TITLES
+        value: "false"

@@ -204,5 +204,7 @@ return [
 
     'version' => '1.1.3',
 
+    'fetch_link_titles' => (bool) env('SERVAS_FETCH_LINK_TITLES', false),
+
     'show_app_version' => (bool) env('SERVAS_SHOW_APP_VERSION', true),
 ];

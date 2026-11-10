@@ -15,7 +15,16 @@ class PermissionHelper
             $userId = Auth::id();
         }
 
-        return !empty($modal) && $modal->$userTable === $userId;
+        return $userId !== null && !empty($modal) && $modal->$userTable === $userId;
+    }
+
+    /** Reject the entire write before mutation if any related object is foreign or absent. */
+    public static function requireOwnedModalIds(array $ids, string $model): void
+    {
+        foreach ($ids as $id) {
+            abort_unless(is_int($id) || (is_string($id) && ctype_digit($id)), 403);
+            abort_unless(self::userIsOwnerOfModal($model::find($id)), 403);
+        }
     }
 
     /**

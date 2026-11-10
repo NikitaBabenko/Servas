@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\ApiControllers;
 
+use App\Helpers\PermissionHelper;
 use App\Helpers\WebpageData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreLinkApiRequest;
 use App\Models\Link;
+use App\Models\Group;
 use App\Services\Models\GroupService;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -27,10 +29,13 @@ class LinkController extends Controller
     {
         $validated = $request->validated();
 
+        PermissionHelper::requireOwnedModalIds($validated['groups'] ?? [], Group::class);
+        PermissionHelper::requireOwnedModalIds($validated['tags'] ?? [], Tag::class);
+
         $link = Link::make();
 
         $link->link = $validated['link'];
-        $link->title = $validated['title'];
+        $link->title = $validated['title'] ?? null;
         $link->user_id = Auth::id();
 
         if (empty($link->title)) {
@@ -40,7 +45,7 @@ class LinkController extends Controller
         $link->save();
 
         if (key_exists('groups', $validated)) {
-            $groupIds = $validated['groups'];
+            $groupIds = $validated['groups'] ?? [];
 
             $link->groups()->sync($groupIds);
 
@@ -50,7 +55,7 @@ class LinkController extends Controller
         if (key_exists('tags', $validated)) {
             $tags = [];
 
-            foreach ($validated['tags'] as $tag) {
+            foreach ($validated['tags'] ?? [] as $tag) {
                 $tags[] = Tag::filterByCurrentUser()->find($tag);
             }
 
