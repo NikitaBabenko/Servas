@@ -1,6 +1,6 @@
-# VibeNest guided private profile (local review candidate)
+# VibeNest guided private profile (published experimental manual profile)
 
-**NOT_READY. This profile has not been built or run. No deploy badge is published.**
+**NOT_READY. This experimental manual profile has not been built or run. No deploy badge is published.**
 The [guided preparation contract](VIBENEST_GUIDED.md) is a static proposal for
 the existing dashboard workflow. It has not been exercised in production.
 The current VibeNest Render adapter rejects the required `disk` field with

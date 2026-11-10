@@ -1,7 +1,7 @@
 # Guided preparation contract
 
-**NOT_READY: local static review only. No published fork, badge, build, application,
-test-owner session, Free fit or persistence acceptance is claimed.**
+**NOT_READY: published experimental manual profile; static review only. No badge,
+build, application, test-owner session, Free fit or persistence acceptance is claimed.**
 
 This branch adapts the reviewed private profile at
 `a3cd21932f5f8699b664b7453d5f3f9ea079ddc4` for the ordinary dashboard's root

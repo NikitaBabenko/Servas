@@ -1,6 +1,6 @@
 # Servas
 
-> **VibeNest guided profile: NOT_READY (local static review only).**
+> **VibeNest guided profile: NOT_READY (published experimental manual profile).**
 > The root Dockerfile is a pinned COPY-only private profile. It requires a native
 > persistent mount at `/app/database/sqlite` and refuses startup without it.
 > Follow the [guided preparation contract](docs/VIBENEST_GUIDED.md); this is not
